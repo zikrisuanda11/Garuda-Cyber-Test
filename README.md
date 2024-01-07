@@ -7,7 +7,6 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
 ## Installation
 
 ```
@@ -38,13 +37,21 @@ yarn dev
 
 ### Api
 this endpoint Restfull API for crud product, and shop
-
++ Table Products
 | Endpoint | Method | Request Body |
 | --- | --- | --- |
 | `/api/products` | GET | - |
 | `/api/products` | POST | name, price, stock, image: file |
 | `/api/products/{id}` | POST | name, price, stock, image: file |
 | `/api/products/{id}` | DELETE | - |
+
++ Table Shops
+| Endpoint | Method | Request Body |
+| --- | --- | --- |
+| `/api/shops` | GET | - |
+| `/api/shops` | POST | name |
+| `/api/shops/{id}` | PUT | name |
+| `/api/shops/{id}` | DELETE | - |
 
 ## License
 
