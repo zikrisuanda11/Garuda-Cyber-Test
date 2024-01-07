@@ -17,8 +17,15 @@ class Transaction extends Model
         return $this->hasMany(DetailTransaction::class, 'transaction_id');
     }
 
-    public function voucher()
+    public function voucher_generated()
     {
-        return $this->belongsTo(Voucher::class, 'voucher_code');
+        return $this->hasOne(Voucher::class, 'generate_by_transaction_id');
     }
+    
+    public function voucher_used()
+    {
+        return $this->hasOne(Voucher::class, 'used_by_transaction_id');
+    }
+
+
 }

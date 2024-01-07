@@ -10,8 +10,6 @@ export default function Register() {
     password: '',
   });
 
-  console.log(errors.email);
-
   useEffect(() => {
     toast.error(errors.email)
   }, [errors])

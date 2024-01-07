@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('vouchers', function (Blueprint $table) {
             $table->string('code')->primary();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('generate_by_transaction_id')->nullable()->constrained('transactions')->onDelete('cascade');
+            $table->foreignId('used_by_transaction_id')->nullable()->constrained('transactions')->onDelete('cascade');
             $table->integer('discount_amount');
             $table->date('expired_date');
             $table->enum('status', ['expired', 'unexpired']);

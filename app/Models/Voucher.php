@@ -16,7 +16,8 @@ class Voucher extends Model
 
     protected $fillable = [
         'code',
-        'user_id',
+        'generate_by_transaction_id',
+        'used_by_transaction_id',
         'discount_amount',
         'expired_date',
         'status',
@@ -28,5 +29,4 @@ class Voucher extends Model
     {
         return $this->belongsTo(Transaction::class, 'voucher_code', 'code');
     }
-
 }

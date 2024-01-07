@@ -66,8 +66,6 @@ class ProductController extends Controller
             'image' => 'nullable|file|mimes:png,jpg,jpeg|image',
         ]);
 
-        // dd($product->image);
-
         $product->update([
             'shop_id' => $request->shop_id,
             'name' => $request->name,

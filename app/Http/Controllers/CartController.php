@@ -11,7 +11,10 @@ class CartController extends Controller
 {
     public function index()
     {
-        $data = Cart::query()->where('user_id', auth()->user()->id)->get()->load('product.shop');
+        $data = Cart::query()->where('user_id', auth()->user()->id)
+            ->orderBy('id', 'asc')
+            ->get()
+            ->load('product.shop');
         $price = $data->sum('price');
         $discount = $price > 2000000 ? 10000: 0;
         $product_count = $data->count();
@@ -31,7 +34,6 @@ class CartController extends Controller
 
     public function store(Request $request)
     {
-        // TODO buat pengecekan stock di product
         $request->validate([
             'product_id' => 'required',
             'quantity' => 'required',
@@ -40,6 +42,7 @@ class CartController extends Controller
         $cart = Cart::query()
             ->where('user_id', auth()->user()->id)
             ->where('product_id', $request->product_id)
+            ->orderBy('id', 'asc')
             ->first();
         
         $product = Product::query()->find($request->product_id);
@@ -71,7 +74,7 @@ class CartController extends Controller
         }
 
         if($request->header('x-inertia')){
-            return to_route('root')->with('message', 'Berhasil menambahkan produk');
+            return to_route('cart.index')->with('message', 'Berhasil menambahkan produk');
         }
 
         return response()->json([
@@ -92,6 +95,8 @@ class CartController extends Controller
         }
 
         $cart->delete();
+
+        return to_route('cart.index')->with('message', 'Berhasil menghapus produk');
 
         return response()->json([
             'status' => 'success',

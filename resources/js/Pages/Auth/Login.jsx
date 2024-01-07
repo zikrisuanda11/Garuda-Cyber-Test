@@ -1,28 +1,36 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { router, useForm } from "@inertiajs/react";
 import toast, { Toaster } from 'react-hot-toast';
 
-export default function Login({message}){
+export default function Login({message, error}){
   
-  const { data, setData, post, processing, errors } = useForm({
+  const { data, setData, post, processing } = useForm({
     email: '',
     password: '',
   });
 
   useEffect(() => {
-    toast.success(message)
-  }, [message])
-
-  console.log(data);
+    if (message){
+      toast.success(message)
+    }
+    if (error){
+      toast.error(error)
+    }
+  }, [message, error])
 
   const handleSubmit = (e) => {
     e.preventDefault()
     post('/login', data);
   }
 
+  console.log(error);
+
   return (
     <div className="flex flex-col justify-center items-center gap-28">
-      {message && (
+      {(message) && (
+        <Toaster />
+      )}
+      {(error) && (
         <Toaster />
       )}
       <div className="w-40 mt-5">
@@ -41,9 +49,9 @@ export default function Login({message}){
           </div>
           <div className="flex flex-col gap-2">
             <label className="font-sans text-xs text-gray-500 ">Email</label>
-            <input onChange={e => setData('email', e.target.value)} type="email" className="px-3 py-2 text-slate-600  w-full rounded-md border ring-1 ring-gray-300 focus:outline-none focus:ring-primary text-sm"/>
+            <input required onChange={e => setData('email', e.target.value)} type="email" className="px-3 py-2 text-slate-600  w-full rounded-md border ring-1 ring-gray-300 focus:outline-none focus:ring-primary text-sm"/>
             <label className="font-sans text-xs text-gray-500 ">Password</label>
-            <input onChange={e => setData('password', e.target.value)} type="password" className="px-3 py-2 text-slate-600  w-full rounded-md border ring-1 ring-gray-300 focus:outline-none focus:ring-primary text-sm"/>
+            <input required onChange={e => setData('password', e.target.value)} type="password" className="px-3 py-2 text-slate-600  w-full rounded-md border ring-1 ring-gray-300 focus:outline-none focus:ring-primary text-sm"/>
           </div>
           <div>
             <button type="submit" className="bg-primary text-white py-2 rounded-md w-full">Login</button>

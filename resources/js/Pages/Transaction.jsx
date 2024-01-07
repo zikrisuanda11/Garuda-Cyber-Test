@@ -1,14 +1,19 @@
 import Default from "../Layout/Default";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import { Dialog, Transition } from '@headlessui/react'
 import { PiTote } from "react-icons/pi";
 import { FormatRupiah } from "@arismun/format-rupiah";
 import { IoIosSearch } from "react-icons/io";
 import { RxCross2 } from "react-icons/rx";
+import toast, { Toaster } from 'react-hot-toast';
 
-export default function Transaction({ cart_count, data }) {
+export default function Transaction({ cart_count, data, message }) {
   const [isOpen, setIsOpen] = useState(false)
   const [selectedTransaction, setSelectedTransaction] = useState(null)
+
+  useEffect(() => {
+    toast.success(message)
+  }, [message])
 
   function closeModal() {
     setIsOpen(false)
@@ -22,12 +27,11 @@ export default function Transaction({ cart_count, data }) {
     setSelectedTransaction(Transaction)
   }
 
-  if (selectedTransaction) {
-    console.log(selectedTransaction)
-  }
-
   return (
     <Default cart_count={cart_count}>
+      {message && (
+        <Toaster />
+      )}
       <div className="px-60 py-10 flex flex-col gap-5">
         <Transition appear show={isOpen} as={Fragment}>
           <Dialog as="div" className="relative z-10" onClose={closeModal}>
@@ -90,7 +94,7 @@ export default function Transaction({ cart_count, data }) {
                           </div>
                         </div>
                         <div className="border-t-8 border-second"></div>
-                        <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-3 mb-10">
                           <h3 className="text-sm font-bold">Rincian Pembayaran</h3>
                           <div className="flex flex-col gap-2">
                             <div className="flex justify-between">
@@ -99,21 +103,36 @@ export default function Transaction({ cart_count, data }) {
                             </div>
                             <div className="flex justify-between">
                               <p className="text-xs text-slate-500">Total Harga</p>
-                              <p className="text-xs "><FormatRupiah value={(selectedTransaction && selectedTransaction.amount) + (selectedTransaction && selectedTransaction.voucher ? selectedTransaction.voucher.discount_amount : 0 )} /></p>
+                              <p className="text-xs "><FormatRupiah value={(selectedTransaction && selectedTransaction.amount) + (selectedTransaction && selectedTransaction.voucher ? selectedTransaction.voucher.discount_amount : 0)} /></p>
                             </div>
-                            {selectedTransaction && selectedTransaction.voucher != null && (
+                            {selectedTransaction && selectedTransaction.voucher_used != null && (
                               <div className="flex justify-between">
                                 <p className="text-xs text-slate-500">Diskon</p>
-                                <p className="text-xs "> - <FormatRupiah value={selectedTransaction && selectedTransaction.voucher.discount_amount}/></p>
+                                <p className="text-xs "> - <FormatRupiah value={selectedTransaction && selectedTransaction.voucher_used.discount_amount} /></p>
                               </div>
                             )}
                           </div>
                           {/* total pembayaran */}
                           <div className="flex justify-between">
                             <p className="font-bold text-sm">Total Belanja</p>
-                            <p className="font-bold text-sm"><FormatRupiah value={selectedTransaction && selectedTransaction.amount}/></p>
+                            {selectedTransaction && selectedTransaction.voucher_used && (
+                              <p className="font-bold text-sm"><FormatRupiah value={selectedTransaction.amount - selectedTransaction.voucher_used.discount_amount} /></p>
+                            )}
+                            {selectedTransaction && selectedTransaction.voucher_generated && (
+                              <p className="font-bold text-sm"><FormatRupiah value={selectedTransaction.amount} /></p>
+                            )}
                           </div>
                         </div>
+                        <div className="border-t-8 border-second"></div>
+                        {selectedTransaction && selectedTransaction.voucher_generated && (
+                          <div className="flex flex-col gap-3 mb-10">
+                            <h3 className="text-sm font-bold">Kode Voucher</h3>
+                            <div className="flex justify-between">
+                              <p className="text-xs text-slate-500">Silahkan Tukarkan Kode</p>
+                              <p className="text-xs">{selectedTransaction.voucher_generated.code}</p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <div className="w-4/12 flex flex-col justify-end">
                         <img src="/assets/detail_transaction.png" alt="" draggable='false' />
@@ -157,7 +176,7 @@ export default function Transaction({ cart_count, data }) {
                   {/* total belanja */}
                   <div className="border-l flex flex-col justify-center px-5 w-2/12">
                     <p className="text-xs text-slate-500">Total Belanja</p>
-                    <p className="font-bold text-sm"><FormatRupiah value={item.amount} /></p>
+                    <p className="font-bold text-sm"><FormatRupiah value={(item.amount) - (item && item.voucher_used ? item.voucher_used.discount_amount : 0)} /></p>
                   </div>
                 </div>
                 <div className="flex justify-end">

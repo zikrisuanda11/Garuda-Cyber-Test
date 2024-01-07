@@ -22,25 +22,23 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
+        $this->validate($request, [
             'email' => 'required|string',
             'password' => 'required|string'
         ]);
 
-        if(!$token = auth()->attempt($request->only('email', 'password'))) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'invalid credentials'
-            ], 401);
+        if(!auth()->attempt($request->only('email', 'password'))) {
+            return Inertia::render('Auth/Login', [
+                'error' => 'Email atau Password salah'
+            ]);
+            // return to_route('root')->with('error', 'Email atau Password salah');
+            // return to_route('root')->with('message', 'Berhasil Login');
         }
 
         auth()->user()->createToken('token')->plainTextToken;
 
         return to_route('root')->with('message', 'Berhasil Login');
 
-        // return inertia('Product', [
-        //     'message' => 'Berhasil Login'
-        // ]);
     }
 
     public function register(Request $request)

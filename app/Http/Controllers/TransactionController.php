@@ -15,9 +15,9 @@ class TransactionController extends Controller
     {
         $data = Transaction::query()
             ->where('user_id', auth()->user()->id)
-            ->with('detailTransactions.product.shop', 'voucher')
+            ->with('detailTransactions.product.shop', 'voucher_generated', 'voucher_used')
             ->get();
-            
+
         return inertia('Transaction', [
             'data' => $data
         ]);
@@ -30,33 +30,38 @@ class TransactionController extends Controller
 
     public function checkout(Request $request)
     {
-        // TODO pengecekan stock product di cart
-        $request->validate([
-            'voucher_code' => 'string|exists:vouchers,code',
-        ]);
-
         $carts = Cart::query()->where('user_id', auth()->user()->id)->get();
 
+        $voucher = Voucher::query()
+            ->where('code', $request->voucher_code)
+            ->first();
+
+        if ($voucher && $voucher->status == 'expired' || $voucher && $voucher->expired_date < now()) {
+            return to_route('cart.index')->with('error', 'Voucher is expired.');
+        }
+
         if ($carts->count() == 0) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'Cart is empty.'
-            ], 422);
+            return to_route('cart.index')->with('error', 'Keranjang Kosong.');
         }
 
         $amount = $carts->sum('price');
 
         if ($request->voucher_code) {
-            $amount = $this->voucher_used($request->voucher_code, $amount);
+            $amount = $this->voucher_used($voucher, $amount);
         }
 
         $transaction = Transaction::query()->create([
-            'voucher_code' => $request->voucher_code,
             'user_id' => auth()->user()->id,
             'date_transaction' => now(),
             'amount' => $amount,
             'status' => 'success',
         ]);
+
+        if($voucher){
+            $voucher->update([
+                'used_by_transaction_id' => $transaction->id,
+            ]);
+        }
 
         foreach ($carts as $cart) {
 
@@ -81,10 +86,12 @@ class TransactionController extends Controller
         }
 
         if ($amount > 2000000) {
-            $voucher = $this->generate_voucher();
+            $voucher = $this->generate_voucher($transaction->id);
         }
 
         $transaction->load('detailTransactions');
+
+        return to_route('transaction.index')->with('message', 'Checkout Success');
 
         return response()->json([
             'status' => 'success',
@@ -95,40 +102,24 @@ class TransactionController extends Controller
         ]);
     }
 
-    public function voucher_used($code, $amount)
+    public function voucher_used($voucher, $amount)
     {
-        $voucher_used = Voucher::query()->where('code', $code)->first();
+        $amount = $amount - $voucher->discount_amount;
 
-        if ($voucher_used->status == 'expired') {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'Voucher is expired.'
-            ], 422);
-        }
-
-        if ($voucher_used->expired_date < now()) {
-            return response()->json([
-                'status' => 'failed',
-                'message' => 'Voucher is expired.'
-            ], 422);
-        }
-
-        $amount = $amount - $voucher_used->discount_amount;
-
-        $voucher_used->update([
+        $voucher->update([
             'status' => 'expired',
         ]);
 
         return $amount;
     }
 
-    public function generate_voucher()
+    public function generate_voucher($id)
     {
         $code = 'VCR' . rand(100000, 999999);
 
         $voucher = Voucher::query()->create([
+            'generate_by_transaction_id' => $id,
             'code' => $code,
-            'user_id' => auth()->user()->id,
             'discount_amount' => 10000,
             'expired_date' => now()->addMonth(3),
             'status' => 'unexpired',

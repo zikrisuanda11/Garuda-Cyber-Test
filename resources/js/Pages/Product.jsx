@@ -12,8 +12,6 @@ export default function Product({ data, auth, message, cart_count }) {
     toast.success(message)
   }, [message])
 
-  console.log(cart_count);
-
   const handleCart = (product_id) => {
     router.post('/carts', {
       'product_id': product_id,
