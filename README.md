@@ -17,6 +17,9 @@ composer update
 php artisan storage:link
 ```
 ```
+cp .env.example .env
+```
+```
 php artisan migrate --seed
 ```
 ```
