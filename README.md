@@ -11,7 +11,13 @@
 ## Installation
 
 ```
-composer update && php artisan storage:link
+composer update
+```
+```
+php artisan storage:link
+```
+```
+php artisan migrate --seed
 ```
 ```
 yarn install
@@ -19,6 +25,11 @@ yarn install
 ```
 yarn dev
 ```
+
+### User Seeder
++ email: test@example.com
++ password: password
+
 
 ## License
 
