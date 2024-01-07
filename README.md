@@ -38,6 +38,7 @@ yarn dev
 ### Api
 this endpoint Restfull API for crud product, and shop
 + Table Products
+  
 | Endpoint | Method | Request Body |
 | --- | --- | --- |
 | `/api/products` | GET | - |
@@ -46,6 +47,7 @@ this endpoint Restfull API for crud product, and shop
 | `/api/products/{id}` | DELETE | - |
 
 + Table Shops
+  
 | Endpoint | Method | Request Body |
 | --- | --- | --- |
 | `/api/shops` | GET | - |
