@@ -36,6 +36,15 @@ yarn dev
 + email: test@example.com
 + password: password
 
+### Api
+this endpoint Restfull API for crud product, and shop
+
+| Endpoint | Method | Request Body |
+| --- | --- | --- |
+| `/api/products` | GET | - |
+| `/api/products` | POST | name, price, stock, image: file |
+| `/api/products/{id}` | POST | name, price, stock, image: file |
+| `/api/products/{id}` | DELETE | - |
 
 ## License
 
